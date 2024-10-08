@@ -1,0 +1,201 @@
+//เวลารันให้รันผ่าน cmd โดยใช้คำสั่ง node "e:\Select Topic Com-Sci JEK\Calculate.js" **ตัวอย่าง Path ที่กุเก็บไฟล์นะจุ๊บๆ
+
+const readline = require('readline'); //ใส่ readline ให้รันใน cmd ได้
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function askQuestion(query) {
+    return new Promise(resolve => rl.question(query, resolve));
+}
+
+function comb(n, k) {
+    if (k > n) return 0;
+    if (k === 0 || k === n) return 1;
+    let num = 1;
+    let denom = 1;
+    for (let i = 0; i < k; i++) {
+        num *= (n - i);
+        denom *= (i + 1);
+    }
+    return num / denom;
+}
+
+async function main() {
+    while (true) {
+        console.log("1 Diseased"); // ป่วย
+        console.log("2 Carrier"); // พาหะ
+        console.log("3 Healthy"); // ปกติ
+        let dad = await askQuestion("Dad: ");
+        let mom = await askQuestion("Mom: ");
+
+        dad = parseInt(dad);
+        mom = parseInt(mom);
+
+        if ([1, 2, 3].includes(dad) && [1, 2, 3].includes(mom)) {
+            if (dad === 3 && mom === 3) {
+                console.log("\nYour child will be fine.\n");
+            } else {
+                console.log("\n-----------------------------------");
+                let Inheritance_dad = 0;
+                let Inheritance_mom = 0;
+                let gene_dad = 0;
+                let gene_mom = 0;
+
+                if ([1, 2].includes(dad) && [1, 2].includes(mom)) { // พ่อแม่ป่วยหรือพาหะทั้งคู่
+                    console.log("1 Sex-linked"); // เพศ
+                    console.log("2 Autosomal"); // ร่างกาย
+                    Inheritance_dad = await askQuestion("Enter Dad's inheritance: ");
+                    Inheritance_mom = await askQuestion("Enter Mom's inheritance: ");
+
+                    console.log("\n1 Dominant"); // เด่น
+                    console.log("2 Recessive"); // ด้อย
+                    gene_dad = await askQuestion("Enter Dad's gene type: ");
+                    gene_mom = await askQuestion("Enter Mom's gene type: ");
+                } else if (dad === 3 && [1, 2].includes(mom)) { // พ่อปกติแม่ป่วยหรือพาหะ
+                    console.log("1 Sex-linked"); // เพศ
+                    console.log("2 Autosomal"); // ร่างกาย
+                    Inheritance_mom = await askQuestion("Enter Mom's inheritance: ");
+
+                    console.log("\n1 Dominant"); // เด่น
+                    console.log("2 Recessive"); // ด้อย
+                    gene_mom = await askQuestion("Enter Mom's gene type: ");
+                } else if (mom === 3 && [1, 2].includes(dad)) { // แม่ปกติพ่อป่วยหรือพาหะ
+                    console.log("1 Sex-linked"); // เพศ
+                    console.log("2 Autosomal"); // ร่างกาย
+                    Inheritance_dad = await askQuestion("Enter Dad's inheritance: ");
+
+                    console.log("\n1 Dominant"); // เด่น
+                    console.log("2 Recessive"); // ด้อย
+                    gene_dad = await askQuestion("Enter Dad's gene type: ");
+                }
+
+                let prob_disease;
+                if (Inheritance_dad === '1' || Inheritance_mom === '1') { // Sex-linked inheritance
+                    prob_disease = (gene_dad === '1' || gene_mom === '1') ? 0.5 : 0.25;
+                } else { // Autosomal inheritance
+                    prob_disease = (gene_dad === '1' || gene_mom === '1') ? 0.5 : 0.25;
+                }
+
+                let prob_not_diseased = 1 - prob_disease; // โอกาสที่จะไม่ป่วย
+
+                console.log("\n-----------------------------------");
+                let num_children = parseInt(await askQuestion("Enter the total number of children: "));
+                let num_diseased = parseInt(await askQuestion("Enter the number of diseased children: "));
+
+                if (num_children > 0 && num_diseased >= 0 && num_diseased <= num_children) {
+                    console.log("\nResults...");
+                    let prob_binom = comb(num_children, num_diseased) * Math.pow(prob_disease, num_diseased) * Math.pow(prob_not_diseased, num_children - num_diseased);
+                    console.log(`Probability of ${num_diseased} out of ${num_children} children being Diseased: ${(prob_binom * 100).toFixed(2)}%`);
+                } else {
+                    console.log("\nPlease Enter diseased children between 0 and the total children.");
+                }
+            }
+        } else {
+            console.log("\nPlease enter a valid number 1-3.\n");
+        }
+
+        let n = await askQuestion("\nWould you like to check again? (y/n): ");
+        if (n.toLowerCase() === "n") {
+            console.log("\nEnd process...\n");
+            rl.close();
+            break;
+        }
+    }
+}
+
+main();
+
+/* แปลงเป็น js ธรรมดา
+function comb(n, k) {
+    if (k > n) return 0;
+    if (k === 0 || k === n) return 1;
+    let num = 1;
+    let denom = 1;
+    for (let i = 0; i < k; i++) {
+        num *= (n - i);
+        denom *= (i + 1);
+    }
+    return num / denom;
+}
+
+let Inheritance_dad = 0;
+let Inheritance_mom = 0;
+let gene_dad = 0;
+let gene_mom = 0;
+let num_children = 0;
+
+while (true) {
+    console.log("1 Diseased"); // ป่วย
+    console.log("2 Carrier"); // พาหะ
+    console.log("3 Healthy"); // ปกติ
+    let dad = parseInt(prompt("Dad: "));
+    let mom = parseInt(prompt("Mom: "));
+
+    if ([1, 2, 3].includes(dad) && [1, 2, 3].includes(mom)) {
+        if (dad === 3 && mom === 3) {
+            console.log("\nYour child will be fine.\n");
+        } else {
+            console.log("\n-----------------------------------");
+            if ([1, 2].includes(dad) && [1, 2].includes(mom)) { // พ่อแม่ป่วยหรือพาหะทั้งคู่
+                console.log("1 Sex-linked"); // เพศ
+                console.log("2 Autosomal"); // ร่างกาย
+                Inheritance_dad = parseInt(prompt("Enter Dad's inheritance: "));
+                Inheritance_mom = parseInt(prompt("Enter Mom's inheritance: "));
+
+                console.log("\n1 Dominant"); // เด่น
+                console.log("2 Recessive"); // ด้อย
+                gene_dad = parseInt(prompt("Enter Dad's gene type: "));
+                gene_mom = parseInt(prompt("Enter Mom's gene type: "));
+            } else if (dad === 3 && [1, 2].includes(mom)) { //พ่อปกติแม่ป่วยหรือพาหะ
+                console.log("1 Sex-linked"); // เพศ
+                console.log("2 Autosomal"); // ร่างกาย
+                Inheritance_mom = parseInt(prompt("Enter Mom's inheritance: "));
+
+                console.log("\n1 Dominant"); // เด่น
+                console.log("2 Recessive"); // ด้อย
+                gene_mom = parseInt(prompt("Enter Mom's gene type: "));
+            } else if (mom === 3 && [1, 2].includes(dad)) { //แม่ปกติพ่อป่วยหรือพาหะ
+                console.log("1 Sex-linked"); // เพศ
+                console.log("2 Autosomal"); // ร่างกาย
+                Inheritance_dad = parseInt(prompt("Enter Dad's inheritance: "));
+
+                console.log("\n1 Dominant"); // เด่น
+                console.log("2 Recessive"); // ด้อย
+                gene_dad = parseInt(prompt("Enter Dad's gene type: "));
+            }
+
+            let prob_disease;
+            if (Inheritance_dad === 1 || Inheritance_mom === 1) { // Sex-linked inheritance
+                prob_disease = (gene_dad === 1 || gene_mom === 1) ? 0.5 : 0.25;
+            } else { // Autosomal inheritance
+                prob_disease = (gene_dad === 1 || gene_mom === 1) ? 0.5 : 0.25;
+            }
+
+            let prob_not_diseased = 1 - prob_disease; // โอกาสที่จะไม่ป่วย
+
+            console.log("\n-----------------------------------");
+            num_children = parseInt(prompt("Enter the total number of children: "));
+            let num_diseased = parseInt(prompt("Enter the number of diseased children: "));
+
+            if (num_children > 0 && num_diseased >= 0 && num_diseased <= num_children) {
+                console.log("\nResults...");
+                let prob_binom = comb(num_children, num_diseased) * Math.pow(prob_disease, num_diseased) * Math.pow(prob_not_diseased, num_children - num_diseased);
+                console.log(`Probability of ${num_diseased} out of ${num_children} children being Diseased: ${(prob_binom * 100).toFixed(2)}%`);
+            } else {
+                console.log("\nPlease Enter diseased children between 0 and the total children.");
+            }
+        }
+    } else {
+        console.log("\nPlease enter a valid number 1-3.\n");
+    }
+
+    let n = prompt("\nWould you like to check again? (y/n) : ");
+    if (n.toLowerCase() === "n") {
+        console.log("\nEnd process...\n");
+        break;
+    }
+}
+*/
